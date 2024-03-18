@@ -1,5 +1,3 @@
-#pragma once
-
 #include <forest/phenotype.h>
 
 
