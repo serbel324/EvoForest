@@ -13,21 +13,19 @@ void NodeSeed::Render(REngine::Graphics* gr) const {
 }
 
 void NodeSprout::Render(REngine::Graphics* gr) const {
-    gr->SetFillColor(REngine::Color::GREEN);
-    gr->DrawCircle(_position, 5);
+    if (_active) {
+        gr->SetFillColor(REngine::Color::RED);
+        gr->DrawCircle(_position, 2);
+    }
 }
 
 void NodeBranch::Render(REngine::Graphics* gr) const {
     gr->SetFillColor(REngine::Color(130, 80, 30));
-    auto [pos, a] = GetEdge();
-    std::cout << "Position# " << _position << " Edge# " << pos << std::endl;
-    gr->DrawLine(_position, pos);
-    gr->DrawCircle(_position, 5);
+    gr->DrawLine(_position, _GetEdge());
 }
 
 void NodeRoot::Render(REngine::Graphics* gr) const {
     gr->SetFillColor(REngine::Color::BLACK);
-    auto [pos, a] = GetEdge();
-    gr->DrawLine(_position, pos);
+    gr->DrawLine(_position, _GetEdge());
     gr->DrawCircle(_position, 5);
 }

@@ -42,13 +42,16 @@ public:
     virtual void Tick(float& food, float elapsedSec) = 0;
     virtual void Render(REngine::Graphics* gr) const = 0;
 
+    void AddChild(const SPtr& child);
+
 protected:
     float _CollectFoodDfs();
     void _TickDfs(float food, float elapsedSec);
     void _RenderDfs(REngine::Graphics* gr) const;
 
+
 protected:
-    std::pair<Vec2f, float> GetEdge() const;
+    Vec2f _GetEdge() const;
 
 protected:
     Vec2f _position; // base of the node
