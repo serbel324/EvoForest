@@ -10,8 +10,8 @@
 
 namespace ExtMath {
 
-extern const long double PI;
-extern const long double EPS;
+constexpr long double PI = 3.14159265359;
+constexpr long double EPS = 1e-9;
 
 double ToRadian(double a);
 

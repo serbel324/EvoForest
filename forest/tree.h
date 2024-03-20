@@ -34,19 +34,21 @@ public:
     using Dna = EvoLib::Dna<TreeGene>;
 
 public:
-    Node(Node* parent, Vec2f position, float angle, float length, const Phenotype::SPtr& phenotype);
+    Node(Node* parent, Vec2f position, double angle, double length, const Phenotype::SPtr& phenotype);
 
     virtual ~Node() = default;
 
-    virtual float CollectFood() = 0;
-    virtual void Tick(float& food, float elapsedSec) = 0;
+    virtual double CollectFood() = 0;
+    virtual void Tick(double& food, double elapsedSec) = 0;
     virtual void Render(REngine::Graphics* gr) const = 0;
 
     void AddChild(const SPtr& child);
 
+    size_t GetDepth() const;
+
 protected:
-    float _CollectFoodDfs();
-    void _TickDfs(float food, float elapsedSec);
+    double _CollectFoodDfs();
+    void _TickDfs(double food, double elapsedSec);
     void _RenderDfs(REngine::Graphics* gr) const;
 
 
@@ -54,9 +56,10 @@ protected:
     Vec2f _GetEdge() const;
 
 protected:
+    size_t _depth;
     Vec2f _position; // base of the node
-    float _angle;
-    float _length;
+    double _angle;
+    double _length;
 
     Node* _parent;
     std::vector<SPtr> _children;
@@ -65,15 +68,15 @@ protected:
 
 class NodeSprout : public Node {
 public:
-    NodeSprout(Node* parent, Vec2f position, float angle, const Phenotype::SPtr& phenotype);
+    NodeSprout(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype);
 
-    float CollectFood() override;
-    void Tick(float& food, float elapsedSec) override;
+    double CollectFood() override;
+    void Tick(double& food, double elapsedSec) override;
     virtual void Render(REngine::Graphics* gr) const override;
 
 private:
-    float _foodAccumulated;
-    float _foodToSprout;
+    double _foodAccumulated;
+    double _foodToSprout;
     bool _active;
 };
 
@@ -83,10 +86,10 @@ public:
     friend class NodeSeed;
 
 public:
-    NodeBranch(Node* parent, Vec2f position, float angle, const Phenotype::SPtr& phenotype);
+    NodeBranch(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype);
 
-    float CollectFood() override;
-    void Tick(float& food, float elapsedSec) override;
+    double CollectFood() override;
+    void Tick(double& food, double elapsedSec) override;
     virtual void Render(REngine::Graphics* gr) const override;
 };
 
@@ -97,10 +100,10 @@ public:
     friend class NodeSeed;
 
 public:
-    NodeRoot(Node* parent, Vec2f position, float angle, const Phenotype::SPtr& phenotype);
+    NodeRoot(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype);
 
-    float CollectFood() override;
-    void Tick(float& food, float elapsedSec) override;
+    double CollectFood() override;
+    void Tick(double& food, double elapsedSec) override;
     virtual void Render(REngine::Graphics* gr) const override;
 };
 
@@ -108,14 +111,14 @@ class NodeSeed : public Node {
 public:
     NodeSeed(Vec2f position, const Phenotype::SPtr& phenotype);
 
-    float CollectFood() override;
-    void Tick(float& food, float elapsedSec) override;
+    double CollectFood() override;
+    void Tick(double& food, double elapsedSec) override;
     virtual void Render(REngine::Graphics* gr) const override;
 
 private:
     NodeBranch::SPtr _branchBase;
     NodeRoot::SPtr _rootBase;
 
-    float _foodStorage;
-    float _foodSpending;
+    double _foodStorage;
+    double _foodSpending;
 };

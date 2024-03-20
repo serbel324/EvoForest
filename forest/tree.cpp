@@ -6,8 +6,9 @@
 // ########################### Node BASE ########################### //
 // ################################################################# //
 
-Node::Node(Node* parent, Vec2f position, float angle, float length, const Phenotype::SPtr& phenotype)
+Node::Node(Node* parent, Vec2f position, double angle, double length, const Phenotype::SPtr& phenotype)
     : _parent(parent)
+    , _depth(parent ? parent->GetDepth() : 0)
     , _position(position)
     , _angle(angle)
     , _length(length)
@@ -19,15 +20,19 @@ Vec2f Node::_GetEdge() const {
     return edge;
 }
 
-float Node::_CollectFoodDfs() {
-    float food = CollectFood();
+size_t Node::GetDepth() const {
+    return _depth;
+}
+
+double Node::_CollectFoodDfs() {
+    double food = CollectFood();
     for (SPtr& child : _children) {
         food += child->_CollectFoodDfs();
     }
     return food;
 }
 
-void Node::_TickDfs(float food, float elapsedSec) {
+void Node::_TickDfs(double food, double elapsedSec) {
     Tick(food, elapsedSec);
 
     assert(food > -ExtMath::EPS);
@@ -36,7 +41,7 @@ void Node::_TickDfs(float food, float elapsedSec) {
         _position = _parent->_GetEdge();
     }
 
-    float foodPart = food / _children.size();
+    double foodPart = food / _children.size();
 
     size_t childrenToTick = _children.size();
 
@@ -66,23 +71,24 @@ NodeSeed::NodeSeed(Vec2f position, const Phenotype::SPtr& phenotype)
     , _branchBase(new NodeBranch(this, position, ExtMath::PI * -0.5, phenotype))
     , _rootBase(new NodeRoot(this, position, ExtMath::PI * 0.5, phenotype))
 {
-    _foodStorage = 10000;
+    _foodStorage = 100000;
 }
 
-float NodeSeed::CollectFood() {
+double NodeSeed::CollectFood() {
     return 0;
 }
 
-void NodeSeed::Tick(float&/* food*/, float elapsedSec) {
-    float food = 0;
+void NodeSeed::Tick(double&/* food*/, double elapsedSec) {
+    double food = 0;
     if (_foodStorage > 0) {
-        food += std::min(_foodStorage, _phenotype->GetSeedFoodStorageConsumption() * elapsedSec);
-        _foodStorage = std::max(0.f, _foodStorage - food);
+        food += std::min(_foodStorage,
+                _phenotype->AccessTraits(_depth).GetSeedFoodStorageConsumption() * elapsedSec);
+        _foodStorage = std::max(0., _foodStorage - food);
     }
     food += _rootBase->CollectFood();
     food += _branchBase->CollectFood();
 
-    float distribution = _phenotype->GetSeedFoodDistribution();
+    double distribution = _phenotype->AccessTraits(_depth).GetSeedFoodDistribution();
     _rootBase->_TickDfs(food * distribution, elapsedSec);
     _branchBase->_TickDfs(food * (1 - distribution), elapsedSec);
 }
@@ -91,27 +97,27 @@ void NodeSeed::Tick(float&/* food*/, float elapsedSec) {
 // ########################## Node SPROUT ########################## //
 // ################################################################# //
 
-NodeSprout::NodeSprout(Node* parent, Vec2f position, float angle, const Phenotype::SPtr& phenotype)
+NodeSprout::NodeSprout(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype)
     : Node(parent, position, angle, 0, phenotype)
     , _active(true)
     , _foodAccumulated(0)
 {}
 
-float NodeSprout::CollectFood() {
+double NodeSprout::CollectFood() {
     return 0;
 }
 
-void NodeSprout::Tick(float& food, float elapsedSec) {
+void NodeSprout::Tick(double& food, double elapsedSec) {
     _foodAccumulated += food;
     food = 0;
 
-    if (_active && _foodAccumulated > _phenotype->GetSproutAccumulatedToGrow()) {
+    if (_active && _foodAccumulated > _phenotype->AccessTraits(_depth).GetSproutAccumulatedToGrow()) {
         _foodAccumulated = 0;
-        float deviation = _phenotype->GetSproutAngleDeviation();
-        float deltaAngle = ExtMath::RandomDouble(-deviation, deviation);
+        double deviation = _phenotype->AccessTraits(_depth).GetSproutAngleDeviation();
+        double deltaAngle = ExtMath::RandomDouble(-deviation, deviation);
         _parent->AddChild(std::make_shared<NodeBranch>(_parent, _position, _angle + deltaAngle, _phenotype));
 
-        if (ExtMath::RandomDouble(0, 1) < _phenotype->GetSproutChanceToTerminate()) {
+        if (ExtMath::RandomDouble(0, 1) < _phenotype->AccessTraits(_depth).GetSproutChanceToTerminate()) {
             _active = false;
         }
     }
@@ -121,35 +127,35 @@ void NodeSprout::Tick(float& food, float elapsedSec) {
 // ########################## Node BRANCH ########################## //
 // ################################################################# //
 
-NodeBranch::NodeBranch(Node* parent, Vec2f position, float angle, const Phenotype::SPtr& phenotype)
+NodeBranch::NodeBranch(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype)
     : Node(parent, position, angle, 10, phenotype)
 {
     AddChild(std::make_shared<NodeSprout>(this, _GetEdge(), angle, _phenotype));
 }
 
-float NodeBranch::CollectFood() {
+double NodeBranch::CollectFood() {
     return 0;
 }
 
-void NodeBranch::Tick(float& food, float elapsedSec) {
-    float growthConsumption = food * _phenotype->GetBranchFoodDistribution();
+void NodeBranch::Tick(double& food, double elapsedSec) {
+    double growthConsumption = food * _phenotype->AccessTraits(_depth).GetBranchFoodDistribution();
     food -= growthConsumption;
-    _length += growthConsumption * _phenotype->GetBranchGrowthCost();
+    _length += growthConsumption * _phenotype->AccessTraits(_depth).GetBranchGrowthSpeed() / _length;
 }
 
 // ################################################################# //
 // ########################### Node ROOT ########################### //
 // ################################################################# //
 
-NodeRoot::NodeRoot(Node* parent, Vec2f position, float angle, const Phenotype::SPtr& phenotype)
+NodeRoot::NodeRoot(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype)
     : Node(parent, position, angle, 10, phenotype)
 {}
 
-float NodeRoot::CollectFood() {
+double NodeRoot::CollectFood() {
     return 0;
 }
 
-void NodeRoot::Tick(float& food, float elapsedSec) {
+void NodeRoot::Tick(double& food, double elapsedSec) {
     food = 0;
 }
 

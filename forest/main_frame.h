@@ -25,16 +25,21 @@ public:
 
     void Initialize() override {
         std::cout << "Init" << std::endl;
-        Phenotype::Dna::SPtr dna;
-        Phenotype::SPtr phenotype(new Phenotype(dna));
         _camera.reset(new REngine::Camera(Vec2f{-400, -400}));
         Gr()->SetCamera(_camera);
-        _tree.reset(new NodeSeed(Vec2f{0, 0}, phenotype));
+        Regenerate();
     }
 
     bool Update(float elapsedMs) override {
-        float _;
+        double _;
         _tree->Tick(_, elapsedMs / 1000);
+
+        timer += elapsedMs / 1000;
+        if (timer > 3) {
+            timer = 0;
+            Regenerate();
+        }
+
         return Frame::Update(elapsedMs);
     }
 
@@ -47,7 +52,14 @@ public:
         Frame::Render();
     }
 
+    void Regenerate() {
+        Phenotype::Dna::SPtr dna;
+        Phenotype::SPtr phenotype(new Phenotype(dna));
+        _tree.reset(new NodeSeed(Vec2f{0, 0}, phenotype));
+    }
+
 private:
+    float timer = 0;
     std::shared_ptr<NodeSeed> _tree;
     REngine::Camera::SPtr _camera;
 };

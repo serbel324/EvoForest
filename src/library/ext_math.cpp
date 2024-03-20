@@ -8,9 +8,6 @@
 
 namespace ExtMath {
 
-extern const long double PI = 3.14159265359;
-extern const long double EPS = 1e-9;
-
 double ToRadian(double a)
 {
     return (a * PI / 180);
