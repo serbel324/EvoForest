@@ -31,10 +31,12 @@ public:
     }
 
     bool Update(float elapsedMs) override {
-        double _;
-        _tree->Tick(_, elapsedMs / 1000);
+        double elapsedSec = elapsedMs / 1000;
 
-        timer += elapsedMs / 1000;
+        _tree->Update();
+        _tree->Tick(elapsedSec);
+
+        timer += elapsedSec;
         if (timer > 3) {
             timer = 0;
             Regenerate();
@@ -55,6 +57,10 @@ public:
     }
 
     void Regenerate() {
+        if (_tree) {
+            std::cout << std::endl;
+            _tree->PrintSubtree(std::cout);
+        }
         Phenotype::Dna::SPtr dna;
         Phenotype::SPtr phenotype(new Phenotype(dna));
         _tree.reset(new NodeSeed(Vec2f{0, 0}, phenotype));

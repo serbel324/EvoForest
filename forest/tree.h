@@ -7,8 +7,10 @@
 #include <library/ext_math.h>
 
 #include <forest/gene.h>
+#include <forest/global.h>
 #include <forest/phenotype.h>
 
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -45,22 +47,37 @@ public:
     void AddChild(const SPtr& child);
 
     size_t GetDepth() const;
+    double GetSubtreeMaintenanceConsumption() const;
+
+    std::string ToString() const;
+    virtual void Print(std::ostream& out) const;
+
+    void PrintSubtree(std::ostream& out, const std::string& prefix = "") const;
 
 protected:
     double _CollectFoodDfs();
     void _TickDfs(double food, double elapsedSec);
     void _RenderDfs(REngine::Graphics* gr) const;
-
+    void _UpdateDfs();
+    void _PrintSubtreeDfs(std::ostream& out);
 
 protected:
+    void _Update();
     Vec2f _GetEdge() const;
+    virtual double _GetMaintenanceConsumption() const = 0;
+
+    const Phenotype::TraitAccessor& _AccessTraits() const;
 
 protected:
     size_t _depth;
     Vec2f _position; // base of the node
+
     double _angle;
     double _length;
+    double _maintenanceConsumption;
+    double _subtreeMaintenanceConsumption;
 
+protected:
     Node* _parent;
     std::vector<SPtr> _children;
     Phenotype::SPtr _phenotype;
@@ -71,9 +88,14 @@ class NodeSprout : public Node {
 public:
     NodeSprout(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype);
 
+public:
     double CollectFood() override;
     void Tick(double& food, double elapsedSec) override;
-    virtual void Render(REngine::Graphics* gr) const override;
+    void Render(REngine::Graphics* gr) const override;
+    void Print(std::ostream& out) const override;
+
+protected:
+    double _GetMaintenanceConsumption() const override;
 
 private:
     double _foodAccumulated;
@@ -94,9 +116,14 @@ public:
 public:
     NodeBranch(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype);
 
+public:
     double CollectFood() override;
     void Tick(double& food, double elapsedSec) override;
-    virtual void Render(REngine::Graphics* gr) const override;
+    void Render(REngine::Graphics* gr) const override;
+    void Print(std::ostream& out) const override;
+
+protected:
+    double _GetMaintenanceConsumption() const override;
 };
 
 
@@ -104,14 +131,20 @@ class NodeLeaf : public Node {
 public:
     NodeLeaf(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype);
 
+    void SetBrightness(double brightness);
+
+public:
     double CollectFood() override;
     void Tick(double& food, double elapsedSec) override;
-    virtual void Render(REngine::Graphics* gr) const override;
+    void Render(REngine::Graphics* gr) const override;
+    void Print(std::ostream& out) const override;
 
-    void SetBrightness(double brightness);
+protected:
+    double _GetMaintenanceConsumption() const override;
 
 private:
     double _brightness;
+    double _efficiency;
 };
 
 
@@ -123,11 +156,16 @@ public:
 public:
     NodeRoot(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype);
 
+    void StopGrowth();
+
+public:
     double CollectFood() override;
     void Tick(double& food, double elapsedSec) override;
-    virtual void Render(REngine::Graphics* gr) const override;
+    void Render(REngine::Graphics* gr) const override;
+    void Print(std::ostream& out) const override;
 
-    void StopGrowth();
+protected:
+    double _GetMaintenanceConsumption() const override;
 
 public:
     bool _growthStopped;
@@ -140,7 +178,11 @@ public:
 
     double CollectFood() override;
     void Tick(double& food, double elapsedSec) override;
-    virtual void Render(REngine::Graphics* gr) const override;
+    void Render(REngine::Graphics* gr) const override;
+    void Print(std::ostream& out) const override;
+
+protected:
+    double _GetMaintenanceConsumption() const override;
 
 private:
     double _foodAccumulated;
@@ -157,14 +199,20 @@ class NodeMiner : public Node {
 public:
     NodeMiner(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype);
 
+    void SetMineralConcentration(double mineralConcentraion);
+
+public:
     double CollectFood() override;
     void Tick(double& food, double elapsedSec) override;
-    virtual void Render(REngine::Graphics* gr) const override;
+    void Render(REngine::Graphics* gr) const override;
+    void Print(std::ostream& out) const override;
 
-    void SetMineralConcentration(double mineralConcentraion);
+protected:
+    double _GetMaintenanceConsumption() const override;
 
 private:
     double _mineralConcentration;
+    double _efficiency;
 };
 
 
@@ -172,9 +220,17 @@ class NodeSeed : public Node {
 public:
     NodeSeed(Vec2f position, const Phenotype::SPtr& phenotype);
 
+    void Tick(double elapsedSec);
+
+public:
     double CollectFood() override;
     void Tick(double& food, double elapsedSec) override;
-    virtual void Render(REngine::Graphics* gr) const override;
+    void Render(REngine::Graphics* gr) const override;
+    void Print(std::ostream& out) const override;
+    void Update();
+
+protected:
+    double _GetMaintenanceConsumption() const override;
 
 private:
     NodeBranch::SPtr _branchBase;
