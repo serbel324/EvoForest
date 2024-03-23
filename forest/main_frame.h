@@ -44,8 +44,10 @@ public:
     }
 
     void Render() override {
-        Gr()->SetFillColor(REngine::Color::WHITE);
+        Gr()->SetFillColor(REngine::Color(190, 240, 255));
         Gr()->Fill();
+        Gr()->SetFillColor(REngine::Color(140, 120, 80));
+        Gr()->DrawRect(Vec2f{-10000, 0}, Vec2f{20000, 1000});
 
         _tree->Render(Gr());
 

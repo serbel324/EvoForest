@@ -5,8 +5,8 @@
 #include <iostream>
 
 void NodeSeed::Render(REngine::Graphics* gr) const {
-    gr->SetFillColor(REngine::Color(200, 200, 140));
-    gr->DrawCircle(_position, 5);
+    gr->SetFillColor(REngine::Color::MAGENTA);
+    gr->DrawCircle(_position, 2);
 
     _branchBase->_RenderDfs(gr);
     _rootBase->_RenderDfs(gr);
@@ -24,8 +24,26 @@ void NodeBranch::Render(REngine::Graphics* gr) const {
     gr->DrawLine(_position, _GetEdge());
 }
 
+void NodeLeaf::Render(REngine::Graphics* gr) const {
+    gr->SetFillColor(REngine::Color::GREEN * _brightness);
+    gr->DrawCircle(_GetEdge(), 3);
+    gr->DrawLine(_position, _GetEdge());
+}
+
 void NodeRoot::Render(REngine::Graphics* gr) const {
     gr->SetFillColor(REngine::Color::BLACK);
     gr->DrawLine(_position, _GetEdge());
-    gr->DrawCircle(_position, 5);
+}
+
+void NodeRootSprout::Render(REngine::Graphics* gr) const {
+    if (_active) {
+        gr->SetFillColor(REngine::Color::RED);
+        gr->DrawCircle(_position, 2);
+    }
+}
+
+void NodeMiner::Render(REngine::Graphics* gr) const {
+    gr->SetFillColor(REngine::Color::YELLOW);
+    gr->DrawCircle(_GetEdge(), 3);
+    gr->DrawLine(_position, _GetEdge());
 }

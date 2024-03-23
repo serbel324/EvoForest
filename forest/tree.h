@@ -25,7 +25,7 @@ class Node {
 *         FRUIT,
 *         ROOT,
 *         ROOT_SPROUT,
-*         SUCKER,
+*         MINER,
 * };
 */
 
@@ -66,6 +66,7 @@ protected:
     Phenotype::SPtr _phenotype;
 };
 
+
 class NodeSprout : public Node {
 public:
     NodeSprout(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype);
@@ -78,7 +79,12 @@ private:
     double _foodAccumulated;
     double _foodToSprout;
     bool _active;
+
+private:
+    void _SpawnBranch();
+    void _SpawnLeaf();
 };
+
 
 class NodeBranch : public Node {
 public:
@@ -94,6 +100,21 @@ public:
 };
 
 
+class NodeLeaf : public Node {
+public:
+    NodeLeaf(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype);
+
+    double CollectFood() override;
+    void Tick(double& food, double elapsedSec) override;
+    virtual void Render(REngine::Graphics* gr) const override;
+
+    void SetBrightness(double brightness);
+
+private:
+    double _brightness;
+};
+
+
 class NodeRoot : public Node {
 public:
     using SPtr = std::shared_ptr<NodeRoot>;
@@ -105,7 +126,47 @@ public:
     double CollectFood() override;
     void Tick(double& food, double elapsedSec) override;
     virtual void Render(REngine::Graphics* gr) const override;
+
+    void StopGrowth();
+
+public:
+    bool _growthStopped;
 };
+
+
+class NodeRootSprout : public Node {
+public:
+    NodeRootSprout(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype);
+
+    double CollectFood() override;
+    void Tick(double& food, double elapsedSec) override;
+    virtual void Render(REngine::Graphics* gr) const override;
+
+private:
+    double _foodAccumulated;
+    double _foodToSprout;
+    bool _active;
+
+private:
+    void _SpawnRoot();
+    void _SpawnMiner();
+};
+
+
+class NodeMiner : public Node {
+public:
+    NodeMiner(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype);
+
+    double CollectFood() override;
+    void Tick(double& food, double elapsedSec) override;
+    virtual void Render(REngine::Graphics* gr) const override;
+
+    void SetMineralConcentration(double mineralConcentraion);
+
+private:
+    double _mineralConcentration;
+};
+
 
 class NodeSeed : public Node {
 public:

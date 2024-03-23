@@ -21,10 +21,10 @@ public:
 
 public:
     // TODO cache transformed values somehow
-    struct alignas(sizeof(double)) TraitAccessor {
+    class alignas(sizeof(double)) TraitAccessor {
 #define TRAIT(name, transformer)                            \
-        double __value##name;                               \
-        double Get##name() const {                          \
+        private: double __value##name;                      \
+        public: double Get##name() const {                  \
             return transformer::Transform(__value##name);   \
         }
 
@@ -32,12 +32,34 @@ public:
         TRAIT(SeedFoodStorageConsumption, TransformLogistic<Int<1000>>);
 
         TRAIT(SproutChanceToTerminate, TransformLogistic<>);
-    
         TRAIT(SproutAccumulatedToGrow, decltype(TransformSum<TransformLogistic<Int<10>>, Int<1>>{}));
-        TRAIT(SproutAngleDeviation, decltype(TransformSum<TransformLogistic<Int<2>>, Int<1>>{}));
+        TRAIT(SproutBranchAngleDeviationMin, TransformLogistic<Int<1>>);
+        TRAIT(SproutBranchAngleDeviationRange, TransformLogistic<Int<3>>);
+        TRAIT(SproutLeafAngleDeviationMin, TransformLogistic<Int<1>>);
+        TRAIT(SproutLeafAngleDeviationRange, TransformLogistic<Int<3>>);
+        TRAIT(SproutChanceToSpawnLeaf, TransformLogistic<>);
 
+        TRAIT(BranchInitialLength, decltype(TransformSum<TransformLogistic<Int<9>>, Int<1>>{}));
         TRAIT(BranchGrowthSpeed, TransformLogistic<Int<10>>);
         TRAIT(BranchFoodDistribution, TransformLogistic<>);
+
+        TRAIT(LeafStemLength, TransformLogistic<Int<10>>);
+        TRAIT(LeafFoodGenerationSpeed, TransformLogistic<Int<10>>);
+
+        TRAIT(RootSproutChanceToTerminate, TransformLogistic<>);
+        TRAIT(RootSproutAccumulatedToGrow, decltype(TransformSum<TransformLogistic<Int<10>>, Int<1>>{}));
+        TRAIT(RootSproutAngleDeviationMin, TransformLogistic<Int<1>>);
+        TRAIT(RootSproutAngleDeviationRange, TransformLogistic<Int<3>>);
+        TRAIT(RootSproutChanceToSpawnMiner, TransformLogistic<>);
+        TRAIT(RootSproutMinerAngleDeviationMin, TransformLogistic<Int<1>>);
+        TRAIT(RootSproutMinerAngleDeviationRange, TransformLogistic<Int<3>>);
+
+        TRAIT(RootInitialLength, decltype(TransformSum<TransformLogistic<Int<9>>, Int<1>>{}));
+        TRAIT(RootGrowthSpeed, TransformLogistic<Int<10>>);
+        TRAIT(RootFoodDistribution, TransformLogistic<>);
+
+        TRAIT(MinerStemLength, TransformLogistic<Int<10>>);
+        TRAIT(MinerFoodGenerationSpeed, TransformLogistic<Int<10>>);
 
 #undef TRAIT
     };

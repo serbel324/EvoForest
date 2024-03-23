@@ -113,9 +113,12 @@ void NodeSprout::Tick(double& food, double elapsedSec) {
 
     if (_active && _foodAccumulated > _phenotype->AccessTraits(_depth).GetSproutAccumulatedToGrow()) {
         _foodAccumulated = 0;
-        double deviation = _phenotype->AccessTraits(_depth).GetSproutAngleDeviation();
-        double deltaAngle = ExtMath::RandomDouble(-deviation, deviation);
-        _parent->AddChild(std::make_shared<NodeBranch>(_parent, _position, _angle + deltaAngle, _phenotype));
+
+        if (ExtMath::RandomDouble(0, 1) > _phenotype->AccessTraits(_depth).GetSproutChanceToSpawnLeaf()) {
+            _SpawnBranch();
+        } else {
+            _SpawnLeaf();
+        }
 
         if (ExtMath::RandomDouble(0, 1) < _phenotype->AccessTraits(_depth).GetSproutChanceToTerminate()) {
             _active = false;
@@ -123,12 +126,28 @@ void NodeSprout::Tick(double& food, double elapsedSec) {
     }
 }
 
+void NodeSprout::_SpawnBranch() {
+    double deviationMin = _phenotype->AccessTraits(_depth).GetSproutBranchAngleDeviationMin();
+    double deviationRange = _phenotype->AccessTraits(_depth).GetSproutBranchAngleDeviationRange();
+    int sign = ExtMath::RandomInt(0, 2) * 2 - 1;
+    double deltaAngle = ExtMath::RandomDouble(deviationMin, deviationMin + deviationRange) * sign;
+    _parent->AddChild(std::make_shared<NodeBranch>(_parent, _position, _angle + deltaAngle, _phenotype));
+}
+
+void NodeSprout::_SpawnLeaf() {
+    double deviationMin = _phenotype->AccessTraits(_depth).GetSproutLeafAngleDeviationMin();
+    double deviationRange = _phenotype->AccessTraits(_depth).GetSproutLeafAngleDeviationRange();
+    int sign = ExtMath::RandomInt(0, 2) * 2 - 1;
+    double deltaAngle = ExtMath::RandomDouble(deviationMin, deviationMin + deviationRange) * sign;
+    _parent->AddChild(std::make_shared<NodeLeaf>(_parent, _position, _angle + deltaAngle, _phenotype));
+}
+
 // ################################################################# //
 // ########################## Node BRANCH ########################## //
 // ################################################################# //
 
 NodeBranch::NodeBranch(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype)
-    : Node(parent, position, angle, 10, phenotype)
+    : Node(parent, position, angle, phenotype->AccessTraits(parent->GetDepth() + 1).GetBranchInitialLength(), phenotype)
 {
     AddChild(std::make_shared<NodeSprout>(this, _GetEdge(), angle, _phenotype));
 }
@@ -144,18 +163,123 @@ void NodeBranch::Tick(double& food, double elapsedSec) {
 }
 
 // ################################################################# //
+// ########################### Node LEAF ########################### //
+// ################################################################# //
+
+NodeLeaf::NodeLeaf(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype)
+    : Node(parent, position, angle,
+            phenotype->AccessTraits(parent->GetDepth() + 1).GetLeafStemLength(),
+            phenotype)
+    , _brightness(0)
+{}
+
+double NodeLeaf::CollectFood() {
+    return _brightness * _phenotype->AccessTraits(_depth).GetLeafFoodGenerationSpeed();
+}
+
+void NodeLeaf::Tick(double& food, double elapsedSec) {
+    food = 0;
+}
+
+void NodeLeaf::SetBrightness(double brightness) {
+    _brightness = brightness;
+}
+
+// ################################################################# //
 // ########################### Node ROOT ########################### //
 // ################################################################# //
 
 NodeRoot::NodeRoot(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype)
-    : Node(parent, position, angle, 10, phenotype)
-{}
+    : Node(parent, position, angle, phenotype->AccessTraits(parent->GetDepth() + 1).GetRootInitialLength(), phenotype)
+    , _growthStopped(false)
+{
+    AddChild(std::make_shared<NodeRootSprout>(this, _GetEdge(), angle, _phenotype));
+}
 
 double NodeRoot::CollectFood() {
     return 0;
 }
 
 void NodeRoot::Tick(double& food, double elapsedSec) {
+    if (!_growthStopped) {
+        double growthConsumption = food * _phenotype->AccessTraits(_depth).GetRootFoodDistribution();
+        food -= growthConsumption;
+        _length += growthConsumption * _phenotype->AccessTraits(_depth).GetRootGrowthSpeed() / _length;
+    }
+}
+
+void NodeRoot::StopGrowth() {
+    _growthStopped = true;
+}
+
+// ################################################################# //
+// ####################### Node ROOT_SPROUT  ####################### //
+// ################################################################# //
+
+NodeRootSprout::NodeRootSprout(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype)
+    : Node(parent, position, angle, 0, phenotype)
+    , _active(true)
+    , _foodAccumulated(0)
+{}
+
+double NodeRootSprout::CollectFood() {
+    return 0;
+}
+
+void NodeRootSprout::Tick(double& food, double elapsedSec) {
+    _foodAccumulated += food;
+    food = 0;
+
+    if (_active && _foodAccumulated > _phenotype->AccessTraits(_depth).GetRootSproutAccumulatedToGrow()) {
+        _foodAccumulated = 0;
+
+        if (ExtMath::RandomDouble(0, 1) > _phenotype->AccessTraits(_depth).GetRootSproutChanceToSpawnMiner()) {
+            _SpawnMiner();
+        } else {
+            _SpawnRoot();
+        }
+
+        dynamic_cast<NodeRoot*>(_parent)->StopGrowth();
+
+        if (ExtMath::RandomDouble(0, 1) < _phenotype->AccessTraits(_depth).GetRootSproutChanceToTerminate()) {
+            _active = false;
+        }
+    }
+}
+
+void NodeRootSprout::_SpawnRoot() {
+    double deviationMin = _phenotype->AccessTraits(_depth).GetRootSproutAngleDeviationMin();
+    double deviationRange = _phenotype->AccessTraits(_depth).GetRootSproutAngleDeviationRange();
+    int sign = ExtMath::RandomInt(0, 2) * 2 - 1;
+    double deltaAngle = ExtMath::RandomDouble(deviationMin, deviationMin + deviationRange) * sign;
+    _parent->AddChild(std::make_shared<NodeRoot>(_parent, _position, _angle + deltaAngle, _phenotype));
+}
+
+void NodeRootSprout::_SpawnMiner() {
+    double deviationMin = _phenotype->AccessTraits(_depth).GetRootSproutMinerAngleDeviationMin();
+    double deviationRange = _phenotype->AccessTraits(_depth).GetRootSproutMinerAngleDeviationRange();
+    int sign = ExtMath::RandomInt(0, 2) * 2 - 1;
+    double deltaAngle = ExtMath::RandomDouble(deviationMin, deviationMin + deviationRange) * sign;
+    _parent->AddChild(std::make_shared<NodeMiner>(_parent, _position, _angle + deltaAngle, _phenotype));
+}
+
+// ################################################################# //
+// ########################## Node MINER  ########################## //
+// ################################################################# //
+
+NodeMiner::NodeMiner(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype)
+    : Node(parent, position, angle, phenotype->AccessTraits(parent->GetDepth() + 1).GetMinerStemLength(), phenotype)
+    , _mineralConcentration(0)
+{}
+
+double NodeMiner::CollectFood() {
+    return _mineralConcentration * _phenotype->AccessTraits(_depth).GetMinerFoodGenerationSpeed();
+}
+
+void NodeMiner::Tick(double& food, double elapsedSec) {
     food = 0;
 }
 
+void NodeMiner::SetMineralConcentration(double mineralConcentration) {
+    _mineralConcentration = mineralConcentration;
+}

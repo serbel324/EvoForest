@@ -30,6 +30,9 @@ public:
     const static Color BLUE;
     const static Color WHITE;
     const static Color BLACK;
+    const static Color YELLOW;
+    const static Color CYAN;
+    const static Color MAGENTA;
 };
 
 } // namespace REngine
