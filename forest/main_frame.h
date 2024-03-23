@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include <forest/tree.h>
+#include <forest/world.h>
 
 using namespace REngine;
 
@@ -21,53 +22,30 @@ public:
             },
             nullptr,
             MakeGenericWindow(_screenSize, "EvoLib"))
+        , _world(Rectangle<double>{-400, 400, -400, 400})
     {}
 
     void Initialize() override {
         std::cout << "Init" << std::endl;
         _camera.reset(new REngine::Camera(Vec2f{-400, -400}));
         Gr()->SetCamera(_camera);
-        Regenerate();
+        _world.Init();
     }
 
     bool Update(float elapsedMs) override {
         double elapsedSec = elapsedMs / 1000;
 
-        _tree->Update();
-        _tree->Tick(elapsedSec);
-
-        timer += elapsedSec;
-        if (timer > 3) {
-            timer = 0;
-            Regenerate();
-        }
+        _world.Tick(elapsedSec);
 
         return Frame::Update(elapsedMs);
     }
 
     void Render() override {
-        Gr()->SetFillColor(REngine::Color(190, 240, 255));
-        Gr()->Fill();
-        Gr()->SetFillColor(REngine::Color(140, 120, 80));
-        Gr()->DrawRect(Vec2f{-10000, 0}, Vec2f{20000, 1000});
-
-        _tree->Render(Gr());
-
+        _world.Render(Gr());
         Frame::Render();
     }
 
-    void Regenerate() {
-        if (_tree) {
-            std::cout << std::endl;
-            _tree->PrintSubtree(std::cout);
-        }
-        Phenotype::Dna::SPtr dna;
-        Phenotype::SPtr phenotype(new Phenotype(dna));
-        _tree.reset(new NodeSeed(Vec2f{0, 0}, phenotype));
-    }
-
 private:
-    float timer = 0;
-    std::shared_ptr<NodeSeed> _tree;
     REngine::Camera::SPtr _camera;
+    World _world;
 };

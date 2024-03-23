@@ -15,6 +15,7 @@ set(SOURCES
     phenotype.cpp
     tree.cpp
     tree_render.cpp
+    world.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

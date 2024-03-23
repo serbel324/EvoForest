@@ -21,18 +21,18 @@ void NodeSprout::Render(REngine::Graphics* gr) const {
 
 void NodeBranch::Render(REngine::Graphics* gr) const {
     gr->SetFillColor(REngine::Color(130, 80, 30));
-    gr->DrawLine(_position, _GetEdge());
+    gr->DrawLine(_position, GetEdge());
 }
 
 void NodeLeaf::Render(REngine::Graphics* gr) const {
     gr->SetFillColor(REngine::Color::GREEN * _brightness);
-    gr->DrawCircle(_GetEdge(), 3);
-    gr->DrawLine(_position, _GetEdge());
+    gr->DrawCircle(GetEdge(), 3);
+    gr->DrawLine(_position, GetEdge());
 }
 
 void NodeRoot::Render(REngine::Graphics* gr) const {
     gr->SetFillColor(REngine::Color::BLACK);
-    gr->DrawLine(_position, _GetEdge());
+    gr->DrawLine(_position, GetEdge());
 }
 
 void NodeRootSprout::Render(REngine::Graphics* gr) const {
@@ -43,7 +43,7 @@ void NodeRootSprout::Render(REngine::Graphics* gr) const {
 }
 
 void NodeMiner::Render(REngine::Graphics* gr) const {
-    gr->SetFillColor(REngine::Color::YELLOW);
-    gr->DrawCircle(_GetEdge(), 3);
-    gr->DrawLine(_position, _GetEdge());
+    gr->SetFillColor(REngine::Color::YELLOW * _mineralConcentration);
+    gr->DrawCircle(GetEdge(), 3);
+    gr->DrawLine(_position, GetEdge());
 }

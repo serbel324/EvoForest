@@ -10,9 +10,13 @@
 #include <forest/global.h>
 #include <forest/phenotype.h>
 
+#include <forest/world.h>
+
 #include <iostream>
 #include <memory>
 #include <vector>
+
+class World;
 
 class Node {
 
@@ -48,6 +52,8 @@ public:
 
     size_t GetDepth() const;
     double GetSubtreeMaintenanceConsumption() const;
+    Vec2f GetPosition() const;
+    Vec2f GetEdge() const;
 
     std::string ToString() const;
     virtual void Print(std::ostream& out) const;
@@ -58,12 +64,11 @@ protected:
     double _CollectFoodDfs();
     void _TickDfs(double food, double elapsedSec);
     void _RenderDfs(REngine::Graphics* gr) const;
-    void _UpdateDfs();
+    void _UpdateDfs(World* world);
     void _PrintSubtreeDfs(std::ostream& out);
 
 protected:
-    void _Update();
-    Vec2f _GetEdge() const;
+    virtual void _Update(World* world);
     virtual double _GetMaintenanceConsumption() const = 0;
 
     const Phenotype::TraitAccessor& _AccessTraits() const;
@@ -129,6 +134,9 @@ protected:
 
 class NodeLeaf : public Node {
 public:
+    using SPtr = std::shared_ptr<NodeLeaf>;
+
+public:
     NodeLeaf(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype);
 
     void SetBrightness(double brightness);
@@ -141,6 +149,7 @@ public:
 
 protected:
     double _GetMaintenanceConsumption() const override;
+    void _Update(World* world) override;
 
 private:
     double _brightness;
@@ -197,6 +206,9 @@ private:
 
 class NodeMiner : public Node {
 public:
+    using SPtr = std::shared_ptr<NodeMiner>;
+
+public:
     NodeMiner(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype);
 
     void SetMineralConcentration(double mineralConcentraion);
@@ -209,6 +221,7 @@ public:
 
 protected:
     double _GetMaintenanceConsumption() const override;
+    void _Update(World* world) override;
 
 private:
     double _mineralConcentration;
@@ -217,6 +230,9 @@ private:
 
 
 class NodeSeed : public Node {
+public:
+    using SPtr = std::shared_ptr<NodeSeed>;
+
 public:
     NodeSeed(Vec2f position, const Phenotype::SPtr& phenotype);
 
@@ -227,7 +243,7 @@ public:
     void Tick(double& food, double elapsedSec) override;
     void Render(REngine::Graphics* gr) const override;
     void Print(std::ostream& out) const override;
-    void Update();
+    void Update(World* world);
 
 protected:
     double _GetMaintenanceConsumption() const override;
@@ -239,3 +255,5 @@ private:
     double _foodStorage;
     double _foodSpending;
 };
+
+using Tree = NodeSeed;

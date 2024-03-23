@@ -3,6 +3,8 @@
 #include <cassert>
 #include <sstream>
 
+// TODO split into separate files
+
 // ################################################################# //
 // ########################### Node BASE ########################### //
 // ################################################################# //
@@ -16,13 +18,17 @@ Node::Node(Node* parent, Vec2f position, double angle, double length, const Phen
     , _phenotype(phenotype)
 {}
 
-Vec2f Node::_GetEdge() const {
+Vec2f Node::GetEdge() const {
     Vec2f edge = _position + Vec2f{1, 0}.rotated(_angle) * _length;
     return edge;
 }
 
 size_t Node::GetDepth() const {
     return _depth;
+}
+
+Vec2f Node::GetPosition() const {
+    return _position;
 }
 
 double Node::GetSubtreeMaintenanceConsumption() const {
@@ -63,20 +69,20 @@ void Node::AddChild(const SPtr& child) {
     _children.push_back(child);
 }
 
-void Node::_Update() {
+void Node::_Update(World* /*world*/) {
     if (_parent) {
-        _position = _parent->_GetEdge();
+        _position = _parent->GetEdge();
     }
 
     _maintenanceConsumption = _GetMaintenanceConsumption();
     _subtreeMaintenanceConsumption = _maintenanceConsumption;
 }
 
-void Node::_UpdateDfs() {
-    _Update();
+void Node::_UpdateDfs(World* world) {
+    _Update(world);
 
     for (Node::SPtr& child : _children) {
-        child->_UpdateDfs();
+        child->_UpdateDfs(world);
         _subtreeMaintenanceConsumption += child->GetSubtreeMaintenanceConsumption();
     }
 }
@@ -102,7 +108,7 @@ void Node::PrintSubtree(std::ostream& out, const std::string& prefix) const {
     if (_parent) {
         out << "^ ";
         _parent->Print(out);
-        out << "edge={" << _parent->_GetEdge() << "}" << std::endl;
+        out << "edge={" << _parent->GetEdge() << "}" << std::endl;
     }
     for (const Node::SPtr& child : _children) {
         child->PrintSubtree(out, prefix + "-");
@@ -150,8 +156,8 @@ void NodeSeed::Tick(double elapsedSec) {
     Tick(_, elapsedSec);
 }
 
-void NodeSeed::Update() {
-    _UpdateDfs();
+void NodeSeed::Update(World* world) {
+    _UpdateDfs(world);
 }
 
 double NodeSeed::_GetMaintenanceConsumption() const {
@@ -231,7 +237,7 @@ void NodeSprout::Print(std::ostream& out) const {
 NodeBranch::NodeBranch(Node* parent, Vec2f position, double angle, const Phenotype::SPtr& phenotype)
     : Node(parent, position, angle, phenotype->AccessTraits(parent->GetDepth() + 1).GetBranchInitialLength(), phenotype)
 {
-    AddChild(std::make_shared<NodeSprout>(this, _GetEdge(), angle, _phenotype));
+    AddChild(std::make_shared<NodeSprout>(this, GetEdge(), angle, _phenotype));
 }
 
 double NodeBranch::CollectFood() {
@@ -289,6 +295,11 @@ void NodeLeaf::Print(std::ostream& out) const {
         << " }";
 }
 
+void NodeLeaf::_Update(World* world) {
+    world->AddLeaf(this);
+    Node::_Update(world);
+}
+
 // ################################################################# //
 // ########################### Node ROOT ########################### //
 // ################################################################# //
@@ -297,7 +308,7 @@ NodeRoot::NodeRoot(Node* parent, Vec2f position, double angle, const Phenotype::
     : Node(parent, position, angle, phenotype->AccessTraits(parent->GetDepth() + 1).GetRootInitialLength(), phenotype)
     , _growthStopped(false)
 {
-    AddChild(std::make_shared<NodeRootSprout>(this, _GetEdge(), angle, _phenotype));
+    AddChild(std::make_shared<NodeRootSprout>(this, GetEdge(), angle, _phenotype));
 }
 
 double NodeRoot::CollectFood() {
@@ -413,6 +424,11 @@ void NodeMiner::SetMineralConcentration(double mineralConcentration) {
 
 double NodeMiner::_GetMaintenanceConsumption() const {
     return _efficiency * MinerMaintenanceConsumptionCoefficient;
+}
+
+void NodeMiner::_Update(World* world) {
+    world->AddMiner(this);
+    Node::_Update(world);
 }
 
 void NodeMiner::Print(std::ostream& out) const {

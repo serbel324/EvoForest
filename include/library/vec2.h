@@ -370,3 +370,12 @@ bool check_parallel(const Vec2<T, F>& a, const Vec2<T, F>& b)
 
     return (std::abs(cross_prod(a, b) / aabs / babs) < Vec2<T, F>::EPS);
 }
+
+template <typename T, typename F>
+struct std::hash<Vec2<T, F>>
+{
+    std::size_t operator()(const Vec2<T, F>& vec) const
+    {
+        return std::hash<T>()(vec.x) ^ std::hash<T>()(vec.y);
+    }
+};
