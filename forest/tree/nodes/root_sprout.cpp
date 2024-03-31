@@ -12,7 +12,7 @@ double NodeRootSprout::CollectFood() {
     return 0;
 }
 
-void NodeRootSprout::_Tick(double& food, double elapsedSec) {
+void NodeRootSprout::_Tick(double& food, double elapsedSec, World* /*world*/) {
     _foodAccumulated += food;
     food = 0;
 

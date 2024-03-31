@@ -12,7 +12,7 @@ double NodeRoot::CollectFood() {
     return 0;
 }
 
-void NodeRoot::_Tick(double& food, double elapsedSec) {
+void NodeRoot::_Tick(double& food, double elapsedSec, World* /*world*/) {
     if (!_growthStopped) {
         double growthConsumption = food * _AccessTraits().GetRootFoodDistribution();
         food -= growthConsumption;

@@ -29,56 +29,74 @@ double Node::GetSubtreeMaintenanceConsumption() const {
     return _subtreeMaintenanceConsumption;
 }
 
-double Node::_CollectFoodDfs() {
+double Node::_CollectFoodSubtree() {
     double food = CollectFood();
     for (SPtr& child : _children) {
-        food += child->_CollectFoodDfs();
+        food += child->_CollectFoodSubtree();
     }
     return food;
 }
 
-void Node::_TickDfs(double food, double elapsedSec) {
-    _Tick(food, elapsedSec);
+void Node::_TickSubtree(double food, double elapsedSec, World* world) {
+    _Tick(food, elapsedSec, world);
 
     assert(food > -ExtMath::EPS);
 
-    double foodPart = food / _children.size();
-
     size_t childrenToTick = _children.size();
 
-    for (size_t i = 0; i < childrenToTick; ++i) {
-        _children[i]->_TickDfs(foodPart, elapsedSec);
+    for (const Node::SPtr& child : _children) {
+        double foodPart = food * child->GetSubtreeMaintenanceConsumption() / _subtreeMaintenanceConsumption;
+        child->_TickSubtree(foodPart, elapsedSec, world);
     }
 }
 
-void Node::_RenderDfs(const Renderer::SPtr& renderer) const {
+void Node::_RenderSubtree(const Renderer::SPtr& renderer) const {
     Render(renderer);
 
     for (const SPtr& child : _children) {
-        child->_RenderDfs(renderer);
+        child->_RenderSubtree(renderer);
     }
 }
 
 void Node::AddChild(const SPtr& child) {
-    _children.push_back(child);
+    _newbornChildren.push_back(child);
 }
 
-void Node::_Update(World* /*world*/) {
+bool Node::_Update(World* /*world*/) {
     if (_parent) {
         _position = _parent->GetEdge();
     }
+    return true;
 }
 
-void Node::_UpdateDfs(World* world) {
-    _Update(world);
+bool Node::_UpdateSubtree(World* world) {
+    if (!_Update(world)) {
+        return false;
+    }
 
     _maintenanceConsumption = _GetMaintenanceConsumption();
     _subtreeMaintenanceConsumption = _maintenanceConsumption;
 
-    for (Node::SPtr& child : _children) {
-        child->_UpdateDfs(world);
-        _subtreeMaintenanceConsumption += child->GetSubtreeMaintenanceConsumption();
+    std::move(_newbornChildren.begin(), _newbornChildren.end(), std::back_inserter(_children));
+    _newbornChildren.clear();
+
+    for (auto it = _children.begin(); it != _children.end(); ++it) {
+        if (!(*it)->_UpdateSubtree(world)) {
+            it->reset();
+        } else {
+            _subtreeMaintenanceConsumption += (*it)->GetSubtreeMaintenanceConsumption();
+        }
     }
+
+    _children.erase(
+        std::remove_if(
+            _children.begin(),
+            _children.end(),
+            [](const Node::SPtr& p) { return !p; }
+        ),
+        _children.end()
+    );
+    return true;
 }
 
 const Phenotype::TraitAccessor& Node::_AccessTraits() const {

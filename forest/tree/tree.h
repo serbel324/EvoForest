@@ -26,7 +26,7 @@ public:
 
 public:
     void Render(const Renderer::SPtr& renderer) const;
-    bool Tick(double elapsedSec); // returns false if dies on this tick
+    bool Tick(double elapsedSec, World* world); // returns false if dies on this tick
     void Update(World* world);
 
 private:

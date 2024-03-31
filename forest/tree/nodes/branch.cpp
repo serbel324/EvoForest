@@ -11,7 +11,7 @@ double NodeBranch::CollectFood() {
     return 0;
 }
 
-void NodeBranch::_Tick(double& food, double elapsedSec) {
+void NodeBranch::_Tick(double& food, double elapsedSec, World* /*world*/) {
     double growthConsumption = food * _AccessTraits().GetBranchFoodDistribution();
     food -= growthConsumption;
     _length += growthConsumption * _AccessTraits().GetBranchGrowthSpeed() / _length;

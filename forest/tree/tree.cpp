@@ -4,14 +4,14 @@ Tree::Tree(Vec2f position, const Phenotype::SPtr& phenotype)
     : _seed(new NodeSeed(position, phenotype))
 {}
 
-bool Tree::Tick(double elapsedSec) {
-    return _seed->Tick(elapsedSec);
+bool Tree::Tick(double elapsedSec, World* world) {
+    return _seed->Tick(elapsedSec, world);
 }
 
 void Tree::Update(World* world) {
-    _seed->_UpdateDfs(world);
+    _seed->_UpdateSubtree(world);
 }
 
 void Tree::Render(const Renderer::SPtr& renderer) const {
-    _seed->_RenderDfs(renderer);
+    _seed->_RenderSubtree(renderer);
 }

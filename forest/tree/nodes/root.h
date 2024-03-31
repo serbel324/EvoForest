@@ -19,7 +19,7 @@ public:
 
 protected:
     double _GetMaintenanceConsumption() const override;
-    void _Tick(double& food, double elapsedSec) override;
+    void _Tick(double& food, double elapsedSec, World* /*world*/) override;
 
 public:
     bool _growthStopped;

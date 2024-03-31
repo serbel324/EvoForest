@@ -9,7 +9,7 @@
 #include <forest/tree/nodes/miner.h>
 #include <forest/tree/nodes/seed.h>
 
-#include <forest/renderer/renderer.h>
+#include <forest/renderer.h>
 
 #include <vector>
 #include <unordered_map>
@@ -33,7 +33,6 @@ public:
     void AddLeaf(NodeLeaf* leaf);
     void AddMiner(NodeMiner* miner);
 
-
 private:
     Rectangle<double> _worldBorders;
     std::vector<std::shared_ptr<Tree>> _trees;
@@ -47,7 +46,7 @@ private:
 private:
     // TODO: config
     double _timeToSpawnTreeSec = 1;
-    uint32_t _initialTreesNumber = 1;
+    uint32_t _initialTreesNumber = 10;
 
 private:
     void _SpawnRandomTree(Vec2f pos);

@@ -15,7 +15,7 @@ double NodeSeed::CollectFood() {
     return 0;
 }
 
-void NodeSeed::_Tick(double&/* food*/, double elapsedSec) {
+void NodeSeed::_Tick(double&/* food*/, double elapsedSec, World* world) {
     double food = 0;
     if (_foodStorage > 0) {
         food += std::min(_foodStorage,
@@ -23,7 +23,7 @@ void NodeSeed::_Tick(double&/* food*/, double elapsedSec) {
         _foodStorage = std::max(0., _foodStorage - food);
     }
 
-    food += std::min(_rootBase->_CollectFoodDfs(), _branchBase->_CollectFoodDfs());
+    food += std::min(_rootBase->_CollectFoodSubtree(), _branchBase->_CollectFoodSubtree());
 
     _foodProducing = food;
     _foodSpending = _subtreeMaintenanceConsumption;
@@ -36,13 +36,13 @@ void NodeSeed::_Tick(double&/* food*/, double elapsedSec) {
     }
 
     double distribution = _AccessTraits().GetSeedFoodDistribution();
-    _rootBase->_TickDfs(food * distribution, elapsedSec);
-    _branchBase->_TickDfs(food * (1 - distribution), elapsedSec);
+    _rootBase->_TickSubtree(food * distribution, elapsedSec, world);
+    _branchBase->_TickSubtree(food * (1 - distribution), elapsedSec, world);
 }
 
-bool NodeSeed::Tick(double elapsedSec) {
+bool NodeSeed::Tick(double elapsedSec, World* world) {
     double _;
-    _Tick(_, elapsedSec);
+    _Tick(_, elapsedSec, world);
     return _alive;
 }
 

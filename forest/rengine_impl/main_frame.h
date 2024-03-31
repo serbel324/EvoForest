@@ -5,7 +5,7 @@
 #include <fstream>
 
 #include <forest/world.h>
-#include <forest/renderer/rengine/rengine_renderer.h>
+#include <forest/rengine_impl/rengine_renderer.h>
 
 #include <memory>
 

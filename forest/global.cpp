@@ -8,9 +8,9 @@ double RootMaintenanceConsumptionCoefficient = 0.05;
 double RootSproutMaintenanceConsumption = 0.1;
 double MinerMaintenanceConsumptionCoefficient = 0.5;
 
-double LightRayResolution = 3;
+double LightRayResolution = 5;
 double LightIntensity = 10;
-double LeafShadow = 0.1;
+double LeafShadow = 0.2;
 
-double SoilChunkSize = 4;
-double SoilMineralConcentration = 4;
+double SoilChunkSize = 10;
+double SoilMineralConcentration = 10;

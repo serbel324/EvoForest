@@ -13,7 +13,7 @@ double NodeLeaf::CollectFood() {
     return _brightness * _efficiency;
 }
 
-void NodeLeaf::_Tick(double& food, double elapsedSec) {
+void NodeLeaf::_Tick(double& food, double elapsedSec, World* /*world*/) {
     food = 0;
 }
 
@@ -25,9 +25,9 @@ double NodeLeaf::_GetMaintenanceConsumption() const {
     return _efficiency * LeafMaintenanceConsumptionCoefficient;
 }
 
-void NodeLeaf::_Update(World* world) {
+bool NodeLeaf::_Update(World* world) {
     world->AddLeaf(this);
-    Node::_Update(world);
+    return Node::_Update(world);
 }
 
 void NodeLeaf::Print(std::ostream& out) const {

@@ -11,7 +11,6 @@ project(Forest)
 
 set(SOURCES
     global.cpp
-    main.cpp
     time_service.cpp
     world.cpp
 
@@ -27,9 +26,13 @@ set(SOURCES
     tree/nodes/seed.cpp
     tree/nodes/sprout.cpp
 
-    renderer/rengine/tree_render_impl.cpp
-    renderer/rengine/world_render_impl.cpp
+    rengine_impl/main.cpp
+    rengine_impl/tree_render_impl.cpp
+    rengine_impl/world_render_impl.cpp
 )
+
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
@@ -39,6 +42,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 target_link_libraries(${PROJECT_NAME}
     EvoLib
+
     REngineCore
     REngineDriver
 )

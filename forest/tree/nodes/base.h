@@ -7,7 +7,7 @@
 #include <forest/global.h>
 #include <forest/tree/phenotype.h>
 
-#include <forest/renderer/renderer.h>
+#include <forest/renderer.h>
 
 #include <iostream>
 #include <memory>
@@ -32,27 +32,25 @@ public:
     void AddChild(const SPtr& child);
 
     size_t GetDepth() const;
-    double GetSubtreeMaintenanceConsumption() const;
-    Vec2f GetPosition() const;
     Vec2f GetEdge() const;
+    Vec2f GetPosition() const;
+    double GetSubtreeMaintenanceConsumption() const;
 
     std::string ToString() const;
     virtual void Print(std::ostream& out) const;
-
     void PrintSubtree(std::ostream& out, const std::string& prefix = "") const;
 
 protected:
-    // TODO think about uniting some of these dfs's
-    double _CollectFoodDfs();
-    void _TickDfs(double food, double elapsedSec);
-    void _RenderDfs(const Renderer::SPtr& renderer) const;
-    void _UpdateDfs(World* world);
-    void _PrintSubtreeDfs(std::ostream& out);
+    // TODO think about uniting some of these Dfs's
+    double _CollectFoodSubtree();
+    void _RenderSubtree(const Renderer::SPtr& renderer) const;
+    void _TickSubtree(double food, double elapsedSec, World* world);
+    bool _UpdateSubtree(World* world);
 
 protected:
     virtual double _GetMaintenanceConsumption() const = 0;
-    virtual void _Tick(double& food, double elapsedSec) = 0;
-    virtual void _Update(World* world);
+    virtual void _Tick(double& food, double elapsedSec, World* world) = 0;
+    virtual bool _Update(World* world);
 
     const Phenotype::TraitAccessor& _AccessTraits() const;
 
@@ -68,5 +66,6 @@ protected:
 protected:
     Node* _parent;
     std::vector<SPtr> _children;
+    std::vector<SPtr> _newbornChildren;
     Phenotype::SPtr _phenotype;
 };

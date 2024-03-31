@@ -6,14 +6,14 @@
 #include <forest/tree/nodes/seed.h>
 #include <forest/tree/nodes/sprout.h>
 
-#include <forest/renderer/rengine/rengine_renderer.h>
+#include <forest/rengine_impl/rengine_renderer.h>
 
 #include <sstream>
 
 void NodeSeed::Render(const Renderer::SPtr& renderer) const {
     static std::optional<sf::Font> font;
 
-    // DEBUG
+    // DEBUG TODO: enable either config or some keyboard input
     if (!font) {
         font.emplace(sf::Font{});
         font->loadFromFile("font.ttf");
@@ -23,8 +23,8 @@ void NodeSeed::Render(const Renderer::SPtr& renderer) const {
     gr->SetFillColor(REngine::Color::MAGENTA);
     gr->DrawCircle(_position, 2);
 
-    _branchBase->_RenderDfs(renderer);
-    _rootBase->_RenderDfs(renderer);
+    _branchBase->_RenderSubtree(renderer);
+    _rootBase->_RenderSubtree(renderer);
 
     if (font) {
         gr->SetFillColor(REngine::Color::BLACK);

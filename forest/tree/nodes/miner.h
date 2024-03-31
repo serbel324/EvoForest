@@ -18,8 +18,8 @@ public:
 
 protected:
     double _GetMaintenanceConsumption() const override;
-    void _Tick(double& food, double elapsedSec) override;
-    void _Update(World* world) override;
+    void _Tick(double& food, double elapsedSec, World* /*world*/) override;
+    bool _Update(World* world) override;
 
 private:
     double _mineralConcentration;

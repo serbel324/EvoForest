@@ -5,6 +5,7 @@
 Phenotype::Phenotype(const Dna::SPtr& dna)
     : _dna(dna)
 {
+    // TODO implement genes
     for (size_t i = 0; i < _traitsSize; ++i) {
         GetRawTraits(0)[i] = ExtMath::RandomDouble(-5, 5);
     }

@@ -33,8 +33,8 @@ void World::Tick(double elapsedSec) {
     _UpdateLighting();
     _UpdateSoil();
 
-    for (auto it = _trees.rbegin(); it != _trees.rend(); ++it) {
-        if (!(*it)->Tick(elapsedSec)) {
+    for (auto it = _trees.begin(); it != _trees.end(); ++it) {
+        if (!(*it)->Tick(elapsedSec, this)) {
             it->reset();
 
             _timeService.PlanEvent(0, [this]() {

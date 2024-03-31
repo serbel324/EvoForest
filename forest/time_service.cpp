@@ -5,7 +5,7 @@ void TimeService::PlanEvent(double fuseSec, Callback&& callback) {
 }
 
 void TimeService::Tick(double elapsedSec) {
-    for (auto it = _timedEvents.rbegin(); it != _timedEvents.rend(); ++it) {
+    for (auto it = _timedEvents.begin(); it != _timedEvents.end(); ++it) {
         if ((*it)->Tick(elapsedSec)) {
             it->reset();
         }
@@ -17,7 +17,8 @@ void TimeService::Tick(double elapsedSec) {
             _timedEvents.end(),
             [](const std::unique_ptr<TimedEvent>& p) { return !p; }
         ),
-        _timedEvents.end());
+        _timedEvents.end()
+    );
 }
 
 TimedEvent::TimedEvent(double fuseSec, TimeService::Callback&& callback)

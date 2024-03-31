@@ -11,7 +11,7 @@ double NodeMiner::CollectFood() {
     return _mineralConcentration * _efficiency;
 }
 
-void NodeMiner::_Tick(double& food, double elapsedSec) {
+void NodeMiner::_Tick(double& food, double elapsedSec, World* /*world*/) {
     food = 0;
 }
 
@@ -23,9 +23,9 @@ double NodeMiner::_GetMaintenanceConsumption() const {
     return _efficiency * MinerMaintenanceConsumptionCoefficient;
 }
 
-void NodeMiner::_Update(World* world) {
+bool NodeMiner::_Update(World* world) {
     world->AddMiner(this);
-    Node::_Update(world);
+    return Node::_Update(world);
 }
 
 void NodeMiner::Print(std::ostream& out) const {

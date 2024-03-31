@@ -17,11 +17,11 @@ public:
     double CollectFood() override;
     void Print(std::ostream& out) const override;
     void Render(const Renderer::SPtr& renderer) const override;
-    bool Tick(double elapsedSec);
+    bool Tick(double elapsedSec, World* /*world*/);
 
 protected:
     double _GetMaintenanceConsumption() const override;
-    void _Tick(double& food, double elapsedSec) override;
+    void _Tick(double& food, double elapsedSec, World* /*world*/) override;
 
 private:
     NodeBranch::SPtr _branchBase;
