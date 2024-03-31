@@ -1,11 +1,11 @@
-#include <app/cell.h>
+#include <word/cell.h>
 
 #include <iostream>
 #include <unordered_set>
 
 int main() {
     uint32_t populationSize = 100;
-    std::string target = "pidoras";
+    std::string target = "somegoodword";
     size_t iterations = 1000;
 
     std::vector<WordCell> population;

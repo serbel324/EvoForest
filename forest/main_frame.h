@@ -4,8 +4,10 @@
 
 #include <fstream>
 
-#include <forest/tree.h>
 #include <forest/world.h>
+#include <forest/renderer/rengine/rengine_renderer.h>
+
+#include <memory>
 
 using namespace REngine;
 
@@ -30,6 +32,7 @@ public:
         _camera.reset(new REngine::Camera(Vec2f{-400, -400}));
         Gr()->SetCamera(_camera);
         _world.Init();
+        _renderer = std::make_shared<REngineRenderer>(Gr());
     }
 
     bool Update(float elapsedMs) override {
@@ -41,11 +44,12 @@ public:
     }
 
     void Render() override {
-        _world.Render(Gr());
+        _world.Render(_renderer);
         Frame::Render();
     }
 
 private:
+    REngineRenderer::SPtr _renderer;
     REngine::Camera::SPtr _camera;
     World _world;
 };

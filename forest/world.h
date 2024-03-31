@@ -3,16 +3,15 @@
 #include <library/util.h>
 
 #include <forest/global.h>
-#include <forest/tree.h>
+#include <forest/tree/tree.h>
+#include <forest/tree/nodes/leaf.h>
+#include <forest/tree/nodes/miner.h>
+#include <forest/tree/nodes/seed.h>
 
-#include <rengine/core/graphics.h>
+#include <forest/renderer/renderer.h>
 
 #include <vector>
 #include <unordered_map>
-
-class NodeLeaf;
-class NodeMiner;
-class NodeSeed;
 
 struct LightRay {
     std::vector<NodeLeaf*> leaves;
@@ -28,14 +27,14 @@ public:
 public:
     void Init();
     void Tick(double elapsedSec);
-    void Render(REngine::Graphics* gr) const;
+    void Render(const Renderer::SPtr& renderer) const;
 
     void AddLeaf(NodeLeaf* leaf);
     void AddMiner(NodeMiner* miner);
 
 private:
     Rectangle<double> _worldBorders;
-    std::vector<std::shared_ptr<NodeSeed>> _trees;
+    std::vector<std::shared_ptr<Tree>> _trees;
 
     float _timerSec;
     uint32_t _treesNumber = 10;

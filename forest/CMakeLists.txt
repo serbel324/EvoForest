@@ -11,11 +11,22 @@ project(Forest)
 
 set(SOURCES
     main.cpp
-    cell.cpp
-    phenotype.cpp
-    tree.cpp
-    tree_render.cpp
     world.cpp
+
+    tree/phenotype.cpp
+    tree/tree.cpp
+
+    tree/nodes/base.cpp
+    tree/nodes/branch.cpp
+    tree/nodes/leaf.cpp
+    tree/nodes/miner.cpp
+    tree/nodes/root.cpp
+    tree/nodes/root_sprout.cpp
+    tree/nodes/seed.cpp
+    tree/nodes/sprout.cpp
+
+    renderer/rengine/tree_render_impl.cpp
+    renderer/rengine/world_render_impl.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

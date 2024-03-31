@@ -1,4 +1,4 @@
-#include <forest/phenotype.h>
+#include <forest/tree/phenotype.h>
 
 
 // TODO: parse values from genes

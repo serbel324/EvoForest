@@ -2,7 +2,7 @@
 
 #include <evo_lib/dna.h>
 
-#include <forest/gene.h>
+#include <forest/tree/gene.h>
 #include <forest/transformer.h>
 
 #include <array>

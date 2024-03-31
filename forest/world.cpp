@@ -8,7 +8,8 @@ void LightRay::Sort() {
     std::sort(leaves.begin(), leaves.end(),
         [](const NodeLeaf* left, const NodeLeaf* right) {
             return left->GetEdge().y < right->GetEdge().y;
-        });
+        }
+    );
 }
 
 World::World(Rectangle<double> worldBorders)
@@ -23,14 +24,14 @@ void World::Tick(double elapsedSec) {
     _rays.clear();
     _soilChunks.clear();
 
-    for (Tree::SPtr& tree : _trees) {
+    for (const Tree::SPtr& tree : _trees) {
         tree->Update(this);
     }
 
     _UpdateLighting();
     _UpdateSoil();
 
-    for (Tree::SPtr& tree : _trees) {
+    for (const Tree::SPtr& tree : _trees) {
         tree->Tick(elapsedSec);
     }
 
@@ -41,17 +42,6 @@ void World::Tick(double elapsedSec) {
     }
 }
 
-void World::Render(REngine::Graphics* gr) const {
-    gr->SetFillColor(REngine::Color(190, 240, 255));
-    gr->Fill();
-    gr->SetFillColor(REngine::Color(140, 120, 80));
-    gr->DrawRect(Vec2f{-10000, 0}, Vec2f{20000, 1000});
-
-    for (const Tree::SPtr& tree : _trees) {
-        tree->Render(gr);
-    }
-}
-
 void World::_SpawnTrees() {
     _trees.clear();
 
@@ -59,7 +49,7 @@ void World::_SpawnTrees() {
         Vec2f pos{ExtMath::RandomDouble(_worldBorders.left, _worldBorders.right), 0.};
         Phenotype::Dna::SPtr dna;
         Phenotype::SPtr phenotype(new Phenotype(dna));
-        _trees.emplace_back(new NodeSeed(pos, phenotype));
+        _trees.emplace_back(new Tree(pos, phenotype));
     }
 }
 

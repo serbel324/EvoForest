@@ -11,8 +11,8 @@ constexpr double RootSproutMaintenanceConsumption = 1;
 constexpr double MinerMaintenanceConsumptionCoefficient = 0.5;
 
 constexpr double LightRayResolution = 3;
-constexpr double LightIntensity = 1;
+constexpr double LightIntensity = 100;
 constexpr double LeafShadow = 0.1;
 
 constexpr double SoilChunkSize = 10;
-constexpr double SoilMineralConcentration = 1;
+constexpr double SoilMineralConcentration = 100;

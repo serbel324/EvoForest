@@ -7,7 +7,7 @@ set(INCPATH
     ${PROJECT_SOURCE_DIR}/include
 )
 
-project(App)
+project(Word)
 
 set(SOURCES
     main.cpp
