@@ -8,13 +8,30 @@
 
 #include <forest/renderer/rengine/rengine_renderer.h>
 
+#include <sstream>
+
 void NodeSeed::Render(const Renderer::SPtr& renderer) const {
+    static std::optional<sf::Font> font;
+
+    // DEBUG
+    if (!font) {
+        font.emplace(sf::Font{});
+        font->loadFromFile("font.ttf");
+    }
+
     REngine::Graphics* gr = renderer->As<REngineRenderer>()->gr;
     gr->SetFillColor(REngine::Color::MAGENTA);
     gr->DrawCircle(_position, 2);
 
     _branchBase->_RenderDfs(renderer);
     _rootBase->_RenderDfs(renderer);
+
+    if (font) {
+        gr->SetFillColor(REngine::Color::BLACK);
+        std::stringstream s;
+        s << "[" << _foodStorage << "/" << _foodProducing << "-" << _foodSpending << "]"; 
+        gr->FillText(s.str(), _position.x, _position.y + 50, 10, *font);
+    }
 }
 
 void NodeSprout::Render(const Renderer::SPtr& renderer) const {
@@ -33,7 +50,7 @@ void NodeBranch::Render(const Renderer::SPtr& renderer) const {
 
 void NodeLeaf::Render(const Renderer::SPtr& renderer) const {
     REngine::Graphics* gr = renderer->As<REngineRenderer>()->gr;
-    gr->SetFillColor(REngine::Color::GREEN * (_brightness * 0.01));
+    gr->SetFillColor(REngine::Color::GREEN * (_brightness / LightIntensity));
     gr->DrawCircle(GetEdge(), 3);
     gr->DrawLine(_position, GetEdge());
 }
@@ -54,7 +71,7 @@ void NodeRootSprout::Render(const Renderer::SPtr& renderer) const {
 
 void NodeMiner::Render(const Renderer::SPtr& renderer) const {
     REngine::Graphics* gr = renderer->As<REngineRenderer>()->gr;
-    gr->SetFillColor(REngine::Color::YELLOW * (_mineralConcentration * 0.01));
+    gr->SetFillColor(REngine::Color::YELLOW * (_mineralConcentration / SoilMineralConcentration));
     gr->DrawCircle(GetEdge(), 3);
     gr->DrawLine(_position, GetEdge());
 }

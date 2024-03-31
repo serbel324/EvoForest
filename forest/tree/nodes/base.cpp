@@ -67,13 +67,13 @@ void Node::_Update(World* /*world*/) {
     if (_parent) {
         _position = _parent->GetEdge();
     }
-
-    _maintenanceConsumption = _GetMaintenanceConsumption();
-    _subtreeMaintenanceConsumption = _maintenanceConsumption;
 }
 
 void Node::_UpdateDfs(World* world) {
     _Update(world);
+
+    _maintenanceConsumption = _GetMaintenanceConsumption();
+    _subtreeMaintenanceConsumption = _maintenanceConsumption;
 
     for (Node::SPtr& child : _children) {
         child->_UpdateDfs(world);

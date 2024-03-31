@@ -21,6 +21,8 @@ void World::Init() {
 }
 
 void World::Tick(double elapsedSec) {
+    _timeService.Tick(elapsedSec);
+
     _rays.clear();
     _soilChunks.clear();
 
@@ -31,25 +33,33 @@ void World::Tick(double elapsedSec) {
     _UpdateLighting();
     _UpdateSoil();
 
-    for (const Tree::SPtr& tree : _trees) {
-        tree->Tick(elapsedSec);
+    for (auto it = _trees.rbegin(); it != _trees.rend(); ++it) {
+        if (!(*it)->Tick(elapsedSec)) {
+            it->reset();
+
+            _timeService.PlanEvent(0, [this]() {
+                Vec2f pos{ExtMath::RandomDouble(_worldBorders.left, _worldBorders.right), 0.};
+                _SpawnRandomTree(pos);
+            });
+        }
     }
 
-    _timerSec += elapsedSec;
-    if (_timerSec > 3) {
-        _timerSec = 0;
-        Init();
-    }
+    _trees.erase(
+        std::remove_if(
+            _trees.begin(),
+            _trees.end(),
+            [](const Tree::SPtr& p) { return !p; }
+        ),
+        _trees.end()
+    );
 }
 
 void World::_SpawnTrees() {
     _trees.clear();
 
-    for (size_t i = 0; i < _treesNumber; ++i) {
+    for (size_t i = 0; i < _initialTreesNumber; ++i) {
         Vec2f pos{ExtMath::RandomDouble(_worldBorders.left, _worldBorders.right), 0.};
-        Phenotype::Dna::SPtr dna;
-        Phenotype::SPtr phenotype(new Phenotype(dna));
-        _trees.emplace_back(new Tree(pos, phenotype));
+        _SpawnRandomTree(pos);
     }
 }
 
@@ -91,4 +101,10 @@ void World::_UpdateSoil() {
             }
         }
     }
+}
+
+void World::_SpawnRandomTree(Vec2f pos) {
+    Phenotype::Dna::SPtr dna;
+    Phenotype::SPtr phenotype(new Phenotype(dna));
+    _trees.emplace_back(new Tree(pos, phenotype));
 }

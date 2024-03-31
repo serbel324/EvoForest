@@ -17,7 +17,7 @@ public:
     double CollectFood() override;
     void Print(std::ostream& out) const override;
     void Render(const Renderer::SPtr& renderer) const override;
-    void Tick(double elapsedSec);
+    bool Tick(double elapsedSec);
 
 protected:
     double _GetMaintenanceConsumption() const override;
@@ -28,5 +28,10 @@ private:
     NodeRoot::SPtr _rootBase;
 
     double _foodStorage;
+
+    // DEBUG
+    double _foodProducing;
     double _foodSpending;
+
+    bool _alive;
 };

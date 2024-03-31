@@ -3,6 +3,7 @@
 #include <library/util.h>
 
 #include <forest/global.h>
+#include <forest/time_service.h>
 #include <forest/tree/tree.h>
 #include <forest/tree/nodes/leaf.h>
 #include <forest/tree/nodes/miner.h>
@@ -32,17 +33,24 @@ public:
     void AddLeaf(NodeLeaf* leaf);
     void AddMiner(NodeMiner* miner);
 
+
 private:
     Rectangle<double> _worldBorders;
     std::vector<std::shared_ptr<Tree>> _trees;
+    TimeService _timeService;
 
     float _timerSec;
-    uint32_t _treesNumber = 10;
 
     std::unordered_map<int, LightRay> _rays;
     std::unordered_map<Vec2i, std::vector<NodeMiner*>> _soilChunks;
 
 private:
+    // TODO: config
+    double _timeToSpawnTreeSec = 1;
+    uint32_t _initialTreesNumber = 1;
+
+private:
+    void _SpawnRandomTree(Vec2f pos);
     void _SpawnTrees();
 
     void _UpdateLighting();

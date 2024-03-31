@@ -2,17 +2,18 @@
 
 #include <cstdint>
 
-constexpr double SeedMaintenanceConsumption = 0;
-constexpr double SproutMaintenanceConsumption = 1;
-constexpr double BranchMaintenanceConsumptionCoefficient = 0.05;
-constexpr double LeafMaintenanceConsumptionCoefficient = 0.5;
-constexpr double RootMaintenanceConsumptionCoefficient = 0.05;
-constexpr double RootSproutMaintenanceConsumption = 1;
-constexpr double MinerMaintenanceConsumptionCoefficient = 0.5;
+// TODO: config
+extern double SeedMaintenanceConsumption;
+extern double SproutMaintenanceConsumption;
+extern double BranchMaintenanceConsumptionCoefficient;
+extern double LeafMaintenanceConsumptionCoefficient;
+extern double RootMaintenanceConsumptionCoefficient;
+extern double RootSproutMaintenanceConsumption;
+extern double MinerMaintenanceConsumptionCoefficient;
 
-constexpr double LightRayResolution = 3;
-constexpr double LightIntensity = 100;
-constexpr double LeafShadow = 0.1;
+extern double LightRayResolution;
+extern double LightIntensity;
+extern double LeafShadow;
 
-constexpr double SoilChunkSize = 10;
-constexpr double SoilMineralConcentration = 100;
+extern double SoilChunkSize;
+extern double SoilMineralConcentration;

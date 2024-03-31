@@ -10,7 +10,9 @@ set(INCPATH
 project(Forest)
 
 set(SOURCES
+    global.cpp
     main.cpp
+    time_service.cpp
     world.cpp
 
     tree/phenotype.cpp

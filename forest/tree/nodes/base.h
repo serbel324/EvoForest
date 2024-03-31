@@ -17,21 +17,6 @@ class World;
 
 class Node {
 
-
-/*
-* public:
-*     enum class Type {
-*         SEED = 0,
-*         BRANCH,
-*         SPROUT,
-*         LEAF,
-*         FRUIT,
-*         ROOT,
-*         ROOT_SPROUT,
-*         MINER,
-* };
-*/
-
 public:
     using SPtr = std::shared_ptr<Node>;
     using Dna = EvoLib::Dna<TreeGene>;
@@ -57,6 +42,7 @@ public:
     void PrintSubtree(std::ostream& out, const std::string& prefix = "") const;
 
 protected:
+    // TODO think about uniting some of these dfs's
     double _CollectFoodDfs();
     void _TickDfs(double food, double elapsedSec);
     void _RenderDfs(const Renderer::SPtr& renderer) const;
