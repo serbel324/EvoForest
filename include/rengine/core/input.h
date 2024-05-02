@@ -3,6 +3,8 @@
 #include <library/vec2.h>
 #include <SFML/Window.hpp>
 
+#include <functional>
+
 namespace REngine {
 
 class InputController {
