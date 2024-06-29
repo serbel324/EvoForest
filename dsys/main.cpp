@@ -10,7 +10,6 @@ int main() {
     std::vector<Process> processes;
     uint32_t max_threads = std::thread::hardware_concurrency();
     uint32_t threads = (max_threads > 3) ? max_threads - 3 : 1;
-    threads = 1;
 
     InterconnectProxy icProxy(threads);
     for (uint32_t i = 0; i < threads; ++i) {
