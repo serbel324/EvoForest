@@ -1,5 +1,7 @@
 #include <dsys/paging.h>
 
+#include <library/ext_math.h>
+
 #include <cassert>
 
 PageAllocator::PageAllocator(size_t pageCount)
@@ -10,24 +12,31 @@ PageAllocator::PageAllocator(size_t pageCount)
 std::optional<PageIdx> PageAllocator::Allocate(size_t pagesToAllocate) {
     assert(pagesToAllocate > 0);
 
-    size_t intervalBegin = 0;
-    size_t intervalEnd = 0;
+    size_t emptySequenceBegin = ExtMath::RandomInt(0, _pageCount);
+    size_t emptySequenceIdx = emptySequenceBegin;
+    size_t emptySequenceSize = 0;
 
-    while (intervalBegin < _pageCount) {
-        if (!_pages[intervalBegin]) {
-            intervalEnd = ++intervalBegin;
+    size_t pagesChecked = 0;
+
+    while (pagesChecked < _pageCount) {
+        if (!_pages[emptySequenceIdx]) {
+            emptySequenceSize = 0;
+            emptySequenceBegin = (emptySequenceIdx + 1) % _pageCount;
+            emptySequenceIdx = emptySequenceBegin;
+            ++pagesChecked;
             continue;
         }
-        while (intervalEnd < _pageCount && _pages[intervalEnd]) {
-            ++intervalEnd;
-            if (intervalEnd - intervalBegin == pagesToAllocate) {
-                for (size_t i = intervalBegin; i < intervalEnd; ++i) {
-                    _pages[i] = false;
+        while (_pages[emptySequenceIdx]) {
+            emptySequenceIdx = (emptySequenceIdx + 1) % _pageCount;
+            ++pagesChecked;
+            if (++emptySequenceSize == pagesToAllocate) {
+                for (size_t idx = emptySequenceBegin, i = 0; i < pagesToAllocate;
+                        idx = (emptySequenceIdx + 1) % _pageCount, ++i) {
+                    _pages[idx] = false;
                 }
-                return {intervalBegin};
+                return {emptySequenceBegin};
             }
         }
-        intervalBegin = intervalEnd;
     }
     return {};
 }

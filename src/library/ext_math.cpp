@@ -63,6 +63,12 @@ double RandomDouble(double a, double b)
     return normilized * (b - a) + a;
 }
 
+uint32_t RandomUint32()
+{
+    static std::mt19937_64 randomizer(std::time(0));
+    return randomizer();
+}
+
 int RandomInt(int a, int b)
 {
     if (b <= a) 

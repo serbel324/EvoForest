@@ -5,11 +5,14 @@
 #include <dsys/arch.h>
 #include <dsys/cpu.h>
 #include <dsys/paging.h>
-#include <dsys/program.h>
+
+using CreatureId = uint32_t;
 
 struct ExecutionContext {
-    uint64_t id;
+    CreatureId id;
     std::vector<PageIdx> pages;
     CPU::Registers registers;
+
+    uint32_t color;
     uint64_t ticksToLive;
 };

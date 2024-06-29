@@ -31,6 +31,8 @@ int Sign(double a);
 
 double RandomDouble(double a, double b);
 
+uint32_t RandomUint32();
+
 int RandomInt(int a, int b);
 
 double Interpolate(double a0, double a1, double p);

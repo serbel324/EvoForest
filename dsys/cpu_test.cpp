@@ -1,13 +1,15 @@
 #include <dsys/cpu.h>
 #include <dsys/ram.h>
 
+#include <library/ext_math.h>
+
 #include <iostream>
 
 int main() {
     size_t ramSize = 256;
     std::shared_ptr<RAM> ram = std::make_shared<RAM>(ramSize);
     for (size_t i = 0; i < ramSize; ++i) {
-        (*ram)[i] = rand();
+        (*ram)[i] = ExtMath::RandomUint32();
     }
 
     CPU cpu(ram);
@@ -28,6 +30,6 @@ int main() {
         }
         std::cout << std::endl;
 
-        cpu.Tick();
+        // cpu.Tick();
     }
 }
